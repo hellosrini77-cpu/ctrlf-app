@@ -1453,8 +1453,12 @@
             // Increment version to cancel any pending searches
             const thisSearch = ++searchVersion;
             
+            // Check if this is a "list files" type query
+            const listPatterns = /^(list|show|get|what are|display).*(files|documents|drive|pdfs?|sheets?|docs?)/i;
+            const isListQuery = listPatterns.test(query);
+            
             // Extract keywords for search, keep original for AI
-            const searchKeywords = extractKeywords(query);
+            const searchKeywords = isListQuery ? 'list files' : extractKeywords(query);
             const originalQuestion = query;
             
             showLoading(true);
@@ -1464,6 +1468,7 @@
             try {
                 const currentSources = [...selectedSources]; // Snapshot current filters
                 console.log('Searching with sources:', currentSources);
+                console.log('Search keywords:', searchKeywords, 'Is list query:', isListQuery);
                 const results = await searchWithAPI(searchKeywords, currentSources);
                 
                 // Only display if this is still the current search
@@ -1776,8 +1781,19 @@
         }
 
         async function searchDriveDirect(query) {
-            const searchQuery = encodeURIComponent(`(name contains '${query}' or fullText contains '${query}') and trashed = false`);
-            const url = `https://www.googleapis.com/drive/v3/files?q=${searchQuery}&pageSize=20&fields=files(id,name,mimeType,webViewLink,modifiedTime,description)&orderBy=modifiedTime desc`;
+            // Check if user wants to list files (generic query)
+            const listKeywords = ['list', 'show', 'all', 'files', 'documents', 'my files', 'my documents', 'recent'];
+            const isListQuery = listKeywords.some(kw => query.toLowerCase().includes(kw)) || query.trim() === '';
+            
+            let url;
+            if (isListQuery) {
+                // List recent files
+                url = `https://www.googleapis.com/drive/v3/files?pageSize=20&fields=files(id,name,mimeType,webViewLink,modifiedTime,description)&orderBy=modifiedTime desc&q=trashed=false`;
+            } else {
+                // Search by query
+                const searchQuery = encodeURIComponent(`(name contains '${query}' or fullText contains '${query}') and trashed = false`);
+                url = `https://www.googleapis.com/drive/v3/files?q=${searchQuery}&pageSize=20&fields=files(id,name,mimeType,webViewLink,modifiedTime,description)&orderBy=modifiedTime desc`;
+            }
             
             const response = await fetch(url, {
                 headers: { 'Authorization': `Bearer ${accessToken}` }
