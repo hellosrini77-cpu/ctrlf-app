@@ -1790,10 +1790,25 @@
                 // List recent files
                 url = `https://www.googleapis.com/drive/v3/files?pageSize=20&fields=files(id,name,mimeType,webViewLink,modifiedTime,description)&orderBy=modifiedTime desc&q=trashed=false`;
             } else {
-                // Search by query
-                const searchQuery = encodeURIComponent(`(name contains '${query}' or fullText contains '${query}') and trashed = false`);
+                // Split query into words and search for each (OR logic)
+                const words = query.split(/\s+/).filter(w => w.length > 1);
+                let searchQuery;
+                
+                if (words.length > 1) {
+                    // Multiple words: search for any word in name OR fullText
+                    const conditions = words.map(word => 
+                        `(name contains '${word}' or fullText contains '${word}')`
+                    ).join(' or ');
+                    searchQuery = encodeURIComponent(`(${conditions}) and trashed = false`);
+                } else {
+                    // Single word
+                    searchQuery = encodeURIComponent(`(name contains '${query}' or fullText contains '${query}') and trashed = false`);
+                }
+                
                 url = `https://www.googleapis.com/drive/v3/files?q=${searchQuery}&pageSize=20&fields=files(id,name,mimeType,webViewLink,modifiedTime,description)&orderBy=modifiedTime desc`;
             }
+            
+            console.log('Drive search URL:', url);
             
             const response = await fetch(url, {
                 headers: { 'Authorization': `Bearer ${accessToken}` }
