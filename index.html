@@ -1417,6 +1417,33 @@
 
         let searchVersion = 0;
 
+        // Extract keywords from natural language queries
+        function extractKeywords(query) {
+            // Remove common question words and filler words
+            const stopWords = [
+                'how', 'many', 'much', 'what', 'where', 'when', 'who', 'which', 'why',
+                'is', 'are', 'was', 'were', 'be', 'been', 'being',
+                'have', 'has', 'had', 'do', 'does', 'did', 'will', 'would', 'could', 'should',
+                'the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'of', 'with',
+                'my', 'your', 'our', 'their', 'this', 'that', 'these', 'those',
+                'i', 'me', 'you', 'he', 'she', 'it', 'we', 'they',
+                'can', 'find', 'show', 'get', 'tell', 'give', 'list', 'search',
+                'about', 'from', 'there', 'here', 'all', 'any', 'some'
+            ];
+            
+            // Split query into words, filter out stop words
+            const words = query.toLowerCase()
+                .replace(/[?!.,'"]/g, '')
+                .split(/\s+/)
+                .filter(word => word.length > 1 && !stopWords.includes(word));
+            
+            // Return unique keywords joined
+            const keywords = [...new Set(words)].join(' ');
+            console.log('Original query:', query);
+            console.log('Extracted keywords:', keywords);
+            return keywords || query; // Fallback to original if no keywords
+        }
+
         async function performSearch(query) {
             if (!accessToken) {
                 showToast('Please sign in to search', 'error');
@@ -1426,6 +1453,10 @@
             // Increment version to cancel any pending searches
             const thisSearch = ++searchVersion;
             
+            // Extract keywords for search, keep original for AI
+            const searchKeywords = extractKeywords(query);
+            const originalQuestion = query;
+            
             showLoading(true);
             clearResults();
             hideAIAnswer();
@@ -1433,15 +1464,15 @@
             try {
                 const currentSources = [...selectedSources]; // Snapshot current filters
                 console.log('Searching with sources:', currentSources);
-                const results = await searchWithAPI(query, currentSources);
+                const results = await searchWithAPI(searchKeywords, currentSources);
                 
                 // Only display if this is still the current search
                 if (thisSearch === searchVersion) {
                     displayResults(results);
                     
-                    // Get AI answer if we have results
+                    // Get AI answer if we have results - use original question
                     if (results.results && results.results.length > 0) {
-                        getAIAnswer(query, results);
+                        getAIAnswer(originalQuestion, results);
                     }
                 } else {
                     console.log('Ignoring stale search results');
@@ -1469,33 +1500,41 @@
             
             // Show loading state
             aiAnswerDiv.style.display = 'block';
-            aiContentDiv.innerHTML = '<div class="ai-loading"><div class="spinner"></div> Generating answer...</div>';
+            aiContentDiv.innerHTML = '<div class="ai-loading"><div class="spinner"></div> Reading files and generating answer...</div>';
             aiSourcesDiv.innerHTML = '';
             
             // Build context from search results
             let context = '';
             const sourcesList = [];
             
-            for (const result of searchResults.results.slice(0, 10)) { // Limit to top 10 results
+            for (const result of searchResults.results.slice(0, 10)) {
+                // For Notion and Slack, content is already included
                 if (result.content) {
-                    context += `\n\n[${result.source.toUpperCase()}: ${result.name}]\n${result.content}`;
-                    sourcesList.push(`${result.source}: ${result.name}`);
-                } else if (result.snippet) {
-                    context += `\n\n[${result.source.toUpperCase()}: ${result.name}]\n${result.snippet}`;
+                    context += `\n\n=== [${result.source.toUpperCase()}: ${result.name}] ===\n${result.content}`;
                     sourcesList.push(`${result.source}: ${result.name}`);
                 }
                 
-                // For Drive files, try to get content
-                if (result.source === 'drive' && result.type && !result.content) {
+                // For Drive files, fetch content
+                if (result.source === 'drive') {
                     try {
+                        console.log(`Fetching content for: ${result.name} (${result.type})`);
                         const content = await getDriveFileContent(result.id, result.type);
-                        if (content) {
-                            context += `\n\n[DRIVE: ${result.name}]\n${content}`;
+                        if (content && content.content) {
+                            context += `\n\n=== [DRIVE: ${result.name}] ===\n${content.content}`;
+                            if (content.rowCount) {
+                                context += `\n[This spreadsheet has ${content.rowCount} data rows]`;
+                            }
                             sourcesList.push(`Drive: ${result.name}`);
                         }
                     } catch (e) {
                         console.log('Could not get Drive file content:', e);
                     }
+                }
+                
+                // For Gmail, add snippet
+                if (result.source === 'gmail' && result.snippet) {
+                    context += `\n\n=== [GMAIL: ${result.name}] ===\nFrom: ${result.from || 'Unknown'}\n${result.snippet}`;
+                    sourcesList.push(`Gmail: ${result.name}`);
                 }
             }
             
@@ -1504,11 +1543,13 @@
                 return;
             }
             
+            console.log('Context length:', context.length);
+            
             try {
                 const response = await fetch(`${CONFIG.VERCEL_API_URL}/api/search?action=answer`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ question, context: context.substring(0, 15000) })
+                    body: JSON.stringify({ question, context: context.substring(0, 20000) })
                 });
                 
                 const data = await response.json();
@@ -1528,24 +1569,91 @@
         }
 
         async function getDriveFileContent(fileId, mimeType) {
-            // For Google Docs/Sheets/Slides, export as text
-            if (mimeType.includes('google-apps.document')) {
-                const response = await fetch(
-                    `https://www.googleapis.com/drive/v3/files/${fileId}/export?mimeType=text/plain`,
-                    { headers: { 'Authorization': `Bearer ${accessToken}` } }
-                );
-                const text = await response.text();
-                return text.substring(0, 3000);
+            console.log('Getting content for:', fileId, mimeType);
+            
+            // Google Docs
+            if (mimeType && mimeType.includes('document')) {
+                try {
+                    const response = await fetch(
+                        `https://www.googleapis.com/drive/v3/files/${fileId}/export?mimeType=text/plain`,
+                        { headers: { 'Authorization': `Bearer ${accessToken}` } }
+                    );
+                    if (response.ok) {
+                        const text = await response.text();
+                        return { content: text.substring(0, 5000), type: 'document' };
+                    }
+                } catch (e) {
+                    console.error('Doc export error:', e);
+                }
             }
-            if (mimeType.includes('google-apps.spreadsheet')) {
-                const response = await fetch(
-                    `https://www.googleapis.com/drive/v3/files/${fileId}/export?mimeType=text/csv`,
-                    { headers: { 'Authorization': `Bearer ${accessToken}` } }
-                );
-                const text = await response.text();
-                return text.substring(0, 3000);
+            
+            // Google Sheets
+            if (mimeType && mimeType.includes('spreadsheet')) {
+                try {
+                    const response = await fetch(
+                        `https://www.googleapis.com/drive/v3/files/${fileId}/export?mimeType=text/csv`,
+                        { headers: { 'Authorization': `Bearer ${accessToken}` } }
+                    );
+                    if (response.ok) {
+                        const csv = await response.text();
+                        const lines = csv.split('\n').filter(l => l.trim());
+                        return { 
+                            content: csv.substring(0, 5000), 
+                            type: 'spreadsheet',
+                            rowCount: lines.length - 1 // Subtract header row
+                        };
+                    }
+                } catch (e) {
+                    console.error('Sheet export error:', e);
+                }
             }
-            // For PDFs and other files, we'd need server-side processing
+            
+            // Google Slides
+            if (mimeType && mimeType.includes('presentation')) {
+                try {
+                    const response = await fetch(
+                        `https://www.googleapis.com/drive/v3/files/${fileId}/export?mimeType=text/plain`,
+                        { headers: { 'Authorization': `Bearer ${accessToken}` } }
+                    );
+                    if (response.ok) {
+                        const text = await response.text();
+                        return { content: text.substring(0, 5000), type: 'presentation' };
+                    }
+                } catch (e) {
+                    console.error('Slides export error:', e);
+                }
+            }
+            
+            // PDF - try via Vercel backend (server-side OCR)
+            if (mimeType && mimeType.includes('pdf')) {
+                try {
+                    const response = await fetch(
+                        `${CONFIG.VERCEL_API_URL}/api/search?action=getDriveContent&fileId=${fileId}&mimeType=${encodeURIComponent(mimeType)}&accessToken=${accessToken}`
+                    );
+                    if (response.ok) {
+                        return await response.json();
+                    }
+                } catch (e) {
+                    console.error('PDF extraction error:', e);
+                }
+            }
+            
+            // Plain text, CSV, JSON files
+            if (mimeType && (mimeType.includes('text/') || mimeType.includes('json') || mimeType.includes('csv'))) {
+                try {
+                    const response = await fetch(
+                        `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`,
+                        { headers: { 'Authorization': `Bearer ${accessToken}` } }
+                    );
+                    if (response.ok) {
+                        const text = await response.text();
+                        return { content: text.substring(0, 5000), type: 'text' };
+                    }
+                } catch (e) {
+                    console.error('Text file error:', e);
+                }
+            }
+            
             return null;
         }
 
@@ -1612,7 +1720,8 @@
                                 name: page.title,
                                 url: page.url,
                                 modified: page.lastEdited,
-                                snippet: ''
+                                snippet: page.content ? page.content.substring(0, 200) : '',
+                                content: page.content || ''
                             });
                         });
                     }
@@ -1635,6 +1744,7 @@
                                 url: msg.permalink || '#',
                                 modified: new Date(parseFloat(msg.ts) * 1000).toISOString(),
                                 snippet: msg.text,
+                                content: msg.text || msg.content || '',
                                 from: msg.username
                             });
                         });
