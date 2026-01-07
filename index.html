@@ -1315,26 +1315,39 @@
                     const source = chip.dataset.source;
                     
                     if (source === 'all') {
+                        // Select all sources
                         selectedSources = ['drive', 'gmail', 'notion', 'slack'];
                         filterChips.forEach(c => c.classList.remove('active'));
                         chip.classList.add('active');
                     } else {
-                        document.querySelector('[data-source="all"]').classList.remove('active');
-                        chip.classList.toggle('active');
+                        const allChip = document.querySelector('[data-source="all"]');
                         
-                        if (chip.classList.contains('active')) {
-                            if (!selectedSources.includes(source)) {
-                                selectedSources.push(source);
-                            }
+                        // If "All" was selected, reset and select only this source
+                        if (allChip.classList.contains('active')) {
+                            selectedSources = [source];
+                            filterChips.forEach(c => c.classList.remove('active'));
+                            chip.classList.add('active');
                         } else {
-                            selectedSources = selectedSources.filter(s => s !== source);
-                        }
-                        
-                        if (selectedSources.length === 0) {
-                            selectedSources = ['drive', 'gmail', 'notion', 'slack'];
-                            document.querySelector('[data-source="all"]').classList.add('active');
+                            // Toggle this source
+                            chip.classList.toggle('active');
+                            
+                            if (chip.classList.contains('active')) {
+                                if (!selectedSources.includes(source)) {
+                                    selectedSources.push(source);
+                                }
+                            } else {
+                                selectedSources = selectedSources.filter(s => s !== source);
+                            }
+                            
+                            // If nothing selected, go back to All
+                            if (selectedSources.length === 0) {
+                                selectedSources = ['drive', 'gmail', 'notion', 'slack'];
+                                allChip.classList.add('active');
+                            }
                         }
                     }
+                    
+                    console.log('Selected sources:', selectedSources); // Debug
                     
                     // Re-run search if there's a query
                     const query = document.getElementById('searchInput').value.trim();
