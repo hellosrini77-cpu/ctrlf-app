@@ -22,6 +22,8 @@
             --kbd-bg: #18181b;
             --kbd-border: #3f3f46;
             --success: #4ade80;
+            --error: #f87171;
+            --warning: #fbbf24;
             --font-mono: 'JetBrains Mono', monospace;
             --font-sans: 'Plus Jakarta Sans', sans-serif;
         }
@@ -40,7 +42,6 @@
             overflow-x: hidden;
         }
 
-        /* Subtle grid background */
         body::before {
             content: '';
             position: fixed;
@@ -56,7 +57,6 @@
             z-index: 0;
         }
 
-        /* Gradient orb */
         .gradient-orb {
             position: fixed;
             top: -200px;
@@ -150,12 +150,21 @@
             transition: all 0.2s;
             border: none;
             cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .btn:hover {
             background: var(--accent-hover);
             transform: translateY(-1px);
             box-shadow: 0 4px 20px var(--accent-glow);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
         }
 
         .btn-outline {
@@ -167,6 +176,34 @@
         .btn-outline:hover {
             border-color: var(--accent);
             background: var(--accent-glow);
+        }
+
+        .btn-google {
+            background: #fff;
+            color: #333;
+        }
+
+        .btn-google:hover {
+            background: #f5f5f5;
+        }
+
+        /* User info */
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 2px solid var(--accent);
+        }
+
+        .user-name {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
         }
 
         /* Hero */
@@ -227,7 +264,7 @@
         /* Search Demo */
         .search-demo {
             max-width: 700px;
-            margin: 0 auto 80px;
+            margin: 0 auto 40px;
         }
 
         .search-container {
@@ -281,6 +318,218 @@
             margin-top: 16px;
             color: var(--text-muted);
             font-size: 0.85rem;
+        }
+
+        /* Search filters */
+        .search-filters {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filter-chip {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 100px;
+            padding: 8px 16px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .filter-chip:hover {
+            border-color: var(--accent);
+            color: var(--text-primary);
+        }
+
+        .filter-chip.active {
+            background: var(--accent-glow);
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .filter-chip svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        /* Results */
+        .results-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px 0;
+            display: none;
+        }
+
+        .results-container.visible {
+            display: block;
+        }
+
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .results-count {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .results-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .result-item {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px 20px;
+            transition: all 0.2s;
+            cursor: pointer;
+            text-decoration: none;
+            display: block;
+        }
+
+        .result-item:hover {
+            border-color: var(--accent);
+            transform: translateX(4px);
+        }
+
+        .result-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+
+        .result-icon {
+            font-size: 1.5rem;
+        }
+
+        .result-source {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            background: var(--bg-tertiary);
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+
+        .result-source.drive {
+            color: var(--success);
+        }
+
+        .result-source.gmail {
+            color: #EA4335;
+        }
+
+        .result-title {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 1rem;
+            margin-bottom: 4px;
+        }
+
+        .result-snippet {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .result-meta {
+            display: flex;
+            gap: 16px;
+            margin-top: 8px;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        /* Loading */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+            color: var(--text-secondary);
+        }
+
+        .loading.visible {
+            display: block;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Auth section */
+        .auth-section {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .auth-section p {
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+        }
+
+        /* Waitlist form */
+        .waitlist-form {
+            max-width: 400px;
+            margin: 0 auto;
+            display: flex;
+            gap: 12px;
+        }
+
+        .waitlist-input {
+            flex: 1;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px 16px;
+            font-size: 1rem;
+            color: var(--text-primary);
+            font-family: var(--font-sans);
+            outline: none;
+        }
+
+        .waitlist-input:focus {
+            border-color: var(--accent);
+        }
+
+        .waitlist-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .waitlist-success {
+            color: var(--success);
+            margin-top: 12px;
+            display: none;
+        }
+
+        .waitlist-success.visible {
+            display: block;
         }
 
         /* Integrations */
@@ -481,6 +730,7 @@
             gap: 16px;
             justify-content: center;
             position: relative;
+            flex-wrap: wrap;
         }
 
         /* Footer */
@@ -499,6 +749,38 @@
 
         footer a:hover {
             color: var(--accent);
+        }
+
+        /* Toast notifications */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s;
+            z-index: 100;
+        }
+
+        .toast.visible {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .toast.success {
+            border-color: var(--success);
+        }
+
+        .toast.error {
+            border-color: var(--error);
         }
 
         /* Responsive */
@@ -526,6 +808,15 @@
             .cta-buttons {
                 flex-direction: column;
             }
+
+            .waitlist-form {
+                flex-direction: column;
+            }
+        }
+
+        /* Hidden state */
+        .hidden {
+            display: none !important;
         }
     </style>
 </head>
@@ -544,8 +835,22 @@
                 <nav>
                     <a href="#features">Features</a>
                     <a href="#how-it-works">How it works</a>
-                    <a href="#" class="btn btn-outline">Sign in</a>
-                    <a href="#" class="btn">Get Started</a>
+                    <div id="authButtons">
+                        <button onclick="signInWithGoogle()" class="btn btn-google">
+                            <svg width="18" height="18" viewBox="0 0 24 24">
+                                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                            </svg>
+                            Sign in with Google
+                        </button>
+                    </div>
+                    <div id="userInfo" class="user-info hidden">
+                        <img id="userAvatar" class="user-avatar" src="" alt="">
+                        <span id="userName" class="user-name"></span>
+                        <button onclick="signOut()" class="btn btn-outline">Sign out</button>
+                    </div>
                 </nav>
             </div>
         </div>
@@ -574,13 +879,57 @@
                                 <path d="m21 21-4.3-4.3"></path>
                             </svg>
                         </div>
-                        <input type="text" class="search-input" placeholder="Search across all your apps...">
+                        <input type="text" id="searchInput" class="search-input" placeholder="Search across all your apps...">
                         <div class="search-shortcut">
                             <span class="key">⌘</span>
                             <span class="key">K</span>
                         </div>
                     </div>
-                    <p class="search-hint">Try: "Q4 marketing deck" or "invoice from Acme Corp"</p>
+                    
+                    <div class="search-filters" id="searchFilters">
+                        <button class="filter-chip active" data-source="all">
+                            All
+                        </button>
+                        <button class="filter-chip" data-source="drive">
+                            <svg viewBox="0 0 87.3 78" xmlns="http://www.w3.org/2000/svg">
+                                <path d="m6.6 66.85 3.85 6.65c.8 1.4 1.95 2.5 3.3 3.3l13.75-23.8h-27.5c0 1.55.4 3.1 1.2 4.5z" fill="#0066da"/>
+                                <path d="m43.65 25-13.75-23.8c-1.35.8-2.5 1.9-3.3 3.3l-25.4 44a9.06 9.06 0 0 0 -1.2 4.5h27.5z" fill="#00ac47"/>
+                                <path d="m73.55 76.8c1.35-.8 2.5-1.9 3.3-3.3l1.6-2.75 7.65-13.25c.8-1.4 1.2-2.95 1.2-4.5h-27.502l5.852 11.5z" fill="#ea4335"/>
+                                <path d="m43.65 25 13.75-23.8c-1.35-.8-2.9-1.2-4.5-1.2h-18.5c-1.6 0-3.15.45-4.5 1.2z" fill="#00832d"/>
+                                <path d="m59.8 53h-32.3l-13.75 23.8c1.35.8 2.9 1.2 4.5 1.2h50.8c1.6 0 3.15-.45 4.5-1.2z" fill="#2684fc"/>
+                                <path d="m73.4 26.5-12.7-22c-.8-1.4-1.95-2.5-3.3-3.3l-13.75 23.8 16.15 28h27.45c0-1.55-.4-3.1-1.2-4.5z" fill="#ffba00"/>
+                            </svg>
+                            Drive
+                        </button>
+                        <button class="filter-chip" data-source="gmail">
+                            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M24 5.457v13.909c0 .904-.732 1.636-1.636 1.636h-3.819V11.73L12 16.64l-6.545-4.91v9.273H1.636A1.636 1.636 0 0 1 0 19.366V5.457c0-2.023 2.309-3.178 3.927-1.964L5.455 4.64 12 9.548l6.545-4.91 1.528-1.145C21.69 2.28 24 3.434 24 5.457z" fill="#EA4335"/>
+                            </svg>
+                            Gmail
+                        </button>
+                    </div>
+                    
+                    <p class="search-hint" id="searchHint">Try: "Q4 marketing deck" or "invoice from Acme Corp"</p>
+                </div>
+
+                <!-- Loading state -->
+                <div class="loading" id="loadingState">
+                    <div class="spinner"></div>
+                    <p>Searching across your apps...</p>
+                </div>
+
+                <!-- Results -->
+                <div class="results-container" id="resultsContainer">
+                    <div class="results-header">
+                        <span class="results-count" id="resultsCount">0 results</span>
+                        <button onclick="clearResults()" class="btn btn-outline">Clear</button>
+                    </div>
+                    <div class="results-list" id="resultsList"></div>
+                </div>
+
+                <!-- Auth prompt for non-signed-in users -->
+                <div class="auth-section" id="authPrompt">
+                    <p>Sign in with Google to search your Drive and Gmail</p>
                 </div>
             </div>
         </section>
@@ -742,10 +1091,11 @@
                 <div class="cta-box">
                     <h2>Ready to find anything?</h2>
                     <p>Join the beta and never lose a document again.</p>
-                    <div class="cta-buttons">
-                        <a href="#" class="btn">Get Started Free</a>
-                        <a href="#" class="btn btn-outline">Watch Demo</a>
-                    </div>
+                    <form class="waitlist-form" id="waitlistForm" onsubmit="submitWaitlist(event)">
+                        <input type="email" class="waitlist-input" id="waitlistEmail" placeholder="Enter your email" required>
+                        <button type="submit" class="btn">Join Waitlist</button>
+                    </form>
+                    <p class="waitlist-success" id="waitlistSuccess">🎉 You're on the list! We'll be in touch soon.</p>
                 </div>
             </div>
         </section>
@@ -757,14 +1107,489 @@
         </div>
     </footer>
 
+    <!-- Toast notification -->
+    <div class="toast" id="toast">
+        <span id="toastMessage"></span>
+    </div>
+
+    <!-- Google Identity Services -->
+    <script src="https://accounts.google.com/gsi/client"></script>
+    
     <script>
-        // Keyboard shortcut to focus search
-        document.addEventListener('keydown', (e) => {
-            if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-                e.preventDefault();
-                document.querySelector('.search-input').focus();
-            }
+        // ============================================
+        // CONFIGURATION
+        // ============================================
+        
+        const CONFIG = {
+            GOOGLE_CLIENT_ID: '577327560802-fpv89k3okp55hn1qsuirdafemnuicupf.apps.googleusercontent.com',
+            BACKEND_URL: 'https://script.google.com/macros/s/AKfycbyCwUYLyNiZ_W1kMUC9ktdY8YMI6S8iaZrTqv_XATuprda68egEehgT8ovWHWNu6UU/exec', // Replace after deploying
+            SCOPES: [
+                'https://www.googleapis.com/auth/drive.readonly',
+                'https://www.googleapis.com/auth/gmail.readonly',
+                'https://www.googleapis.com/auth/userinfo.profile',
+                'https://www.googleapis.com/auth/userinfo.email'
+            ].join(' ')
+        };
+
+        // ============================================
+        // STATE
+        // ============================================
+        
+        let tokenClient;
+        let accessToken = null;
+        let currentUser = null;
+        let selectedSources = ['drive', 'gmail'];
+        let searchTimeout = null;
+
+        // ============================================
+        // INITIALIZATION
+        // ============================================
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            initGoogleAuth();
+            initSearch();
+            initFilters();
+            checkExistingSession();
         });
+
+        function initGoogleAuth() {
+            tokenClient = google.accounts.oauth2.initTokenClient({
+                client_id: CONFIG.GOOGLE_CLIENT_ID,
+                scope: CONFIG.SCOPES,
+                callback: handleAuthCallback
+            });
+        }
+
+        function checkExistingSession() {
+            // Check if we have a stored token
+            const storedToken = localStorage.getItem('ctrlf_access_token');
+            const storedUser = localStorage.getItem('ctrlf_user');
+            
+            if (storedToken && storedUser) {
+                accessToken = storedToken;
+                currentUser = JSON.parse(storedUser);
+                updateUIForSignedInUser();
+            }
+        }
+
+        // ============================================
+        // AUTHENTICATION
+        // ============================================
+        
+        function signInWithGoogle() {
+            tokenClient.requestAccessToken();
+        }
+
+        function handleAuthCallback(response) {
+            if (response.error) {
+                showToast('Sign in failed. Please try again.', 'error');
+                return;
+            }
+
+            accessToken = response.access_token;
+            localStorage.setItem('ctrlf_access_token', accessToken);
+            
+            // Get user info
+            fetchUserInfo();
+        }
+
+        async function fetchUserInfo() {
+            try {
+                const response = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
+                    headers: { 'Authorization': `Bearer ${accessToken}` }
+                });
+                
+                currentUser = await response.json();
+                localStorage.setItem('ctrlf_user', JSON.stringify(currentUser));
+                
+                updateUIForSignedInUser();
+                showToast('Signed in successfully!', 'success');
+                
+            } catch (error) {
+                showToast('Failed to get user info', 'error');
+            }
+        }
+
+        function signOut() {
+            accessToken = null;
+            currentUser = null;
+            localStorage.removeItem('ctrlf_access_token');
+            localStorage.removeItem('ctrlf_user');
+            
+            google.accounts.oauth2.revoke(accessToken);
+            
+            updateUIForSignedOutUser();
+            clearResults();
+            showToast('Signed out', 'success');
+        }
+
+        function updateUIForSignedInUser() {
+            document.getElementById('authButtons').classList.add('hidden');
+            document.getElementById('userInfo').classList.remove('hidden');
+            document.getElementById('authPrompt').classList.add('hidden');
+            
+            document.getElementById('userAvatar').src = currentUser.picture || '';
+            document.getElementById('userName').textContent = currentUser.name || currentUser.email;
+            
+            document.getElementById('searchInput').placeholder = 'Search your Drive and Gmail...';
+        }
+
+        function updateUIForSignedOutUser() {
+            document.getElementById('authButtons').classList.remove('hidden');
+            document.getElementById('userInfo').classList.add('hidden');
+            document.getElementById('authPrompt').classList.remove('hidden');
+            
+            document.getElementById('searchInput').placeholder = 'Search across all your apps...';
+        }
+
+        // ============================================
+        // SEARCH
+        // ============================================
+        
+        function initSearch() {
+            const searchInput = document.getElementById('searchInput');
+            
+            searchInput.addEventListener('input', (e) => {
+                clearTimeout(searchTimeout);
+                const query = e.target.value.trim();
+                
+                if (query.length >= 2) {
+                    searchTimeout = setTimeout(() => performSearch(query), 300);
+                } else {
+                    clearResults();
+                }
+            });
+
+            searchInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    clearTimeout(searchTimeout);
+                    const query = e.target.value.trim();
+                    if (query) performSearch(query);
+                }
+            });
+
+            // Keyboard shortcut
+            document.addEventListener('keydown', (e) => {
+                if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+                    e.preventDefault();
+                    searchInput.focus();
+                }
+            });
+        }
+
+        function initFilters() {
+            const filterChips = document.querySelectorAll('.filter-chip');
+            
+            filterChips.forEach(chip => {
+                chip.addEventListener('click', () => {
+                    const source = chip.dataset.source;
+                    
+                    if (source === 'all') {
+                        selectedSources = ['drive', 'gmail'];
+                        filterChips.forEach(c => c.classList.remove('active'));
+                        chip.classList.add('active');
+                    } else {
+                        document.querySelector('[data-source="all"]').classList.remove('active');
+                        chip.classList.toggle('active');
+                        
+                        if (chip.classList.contains('active')) {
+                            if (!selectedSources.includes(source)) {
+                                selectedSources.push(source);
+                            }
+                        } else {
+                            selectedSources = selectedSources.filter(s => s !== source);
+                        }
+                        
+                        if (selectedSources.length === 0) {
+                            selectedSources = ['drive', 'gmail'];
+                            document.querySelector('[data-source="all"]').classList.add('active');
+                        }
+                    }
+                    
+                    // Re-run search if there's a query
+                    const query = document.getElementById('searchInput').value.trim();
+                    if (query) performSearch(query);
+                });
+            });
+        }
+
+        async function performSearch(query) {
+            if (!accessToken) {
+                showToast('Please sign in to search', 'error');
+                return;
+            }
+
+            showLoading(true);
+            clearResults();
+
+            try {
+                const results = await searchWithAPI(query, selectedSources);
+                displayResults(results);
+            } catch (error) {
+                console.error('Search error:', error);
+                showToast('Search failed. Please try again.', 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        async function searchWithAPI(query, sources) {
+            // If backend is configured, use it
+            if (CONFIG.BACKEND_URL && CONFIG.BACKEND_URL !== 'YOUR_APPS_SCRIPT_URL_HERE') {
+                const response = await fetch(CONFIG.BACKEND_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: 'search',
+                        query: query,
+                        accessToken: accessToken,
+                        sources: sources
+                    })
+                });
+                return await response.json();
+            }
+
+            // Otherwise, search directly via Google APIs
+            const results = {
+                query: query,
+                results: [],
+                timestamp: new Date().toISOString()
+            };
+
+            // Search Drive
+            if (sources.includes('drive')) {
+                try {
+                    const driveResults = await searchDriveDirect(query);
+                    driveResults.forEach(file => {
+                        results.results.push({
+                            source: 'drive',
+                            type: file.mimeType,
+                            id: file.id,
+                            name: file.name,
+                            url: file.webViewLink,
+                            modified: file.modifiedTime,
+                            snippet: file.description || ''
+                        });
+                    });
+                } catch (e) {
+                    console.error('Drive search error:', e);
+                }
+            }
+
+            // Search Gmail
+            if (sources.includes('gmail')) {
+                try {
+                    const gmailResults = await searchGmailDirect(query);
+                    gmailResults.forEach(msg => {
+                        results.results.push({
+                            source: 'gmail',
+                            type: 'email',
+                            id: msg.id,
+                            name: msg.subject,
+                            url: `https://mail.google.com/mail/u/0/#inbox/${msg.id}`,
+                            modified: msg.date,
+                            snippet: msg.snippet,
+                            from: msg.from
+                        });
+                    });
+                } catch (e) {
+                    console.error('Gmail search error:', e);
+                }
+            }
+
+            // Sort by date
+            results.results.sort((a, b) => new Date(b.modified) - new Date(a.modified));
+            results.totalResults = results.results.length;
+
+            return results;
+        }
+
+        async function searchDriveDirect(query) {
+            const searchQuery = encodeURIComponent(`(name contains '${query}' or fullText contains '${query}') and trashed = false`);
+            const url = `https://www.googleapis.com/drive/v3/files?q=${searchQuery}&pageSize=20&fields=files(id,name,mimeType,webViewLink,modifiedTime,description)&orderBy=modifiedTime desc`;
+            
+            const response = await fetch(url, {
+                headers: { 'Authorization': `Bearer ${accessToken}` }
+            });
+            
+            const data = await response.json();
+            return data.files || [];
+        }
+
+        async function searchGmailDirect(query) {
+            const url = `https://www.googleapis.com/gmail/v1/users/me/messages?q=${encodeURIComponent(query)}&maxResults=10`;
+            
+            const response = await fetch(url, {
+                headers: { 'Authorization': `Bearer ${accessToken}` }
+            });
+            
+            const data = await response.json();
+            
+            if (!data.messages) return [];
+
+            // Fetch details for each message
+            const messages = await Promise.all(
+                data.messages.map(msg => getGmailMessageDetails(msg.id))
+            );
+            
+            return messages.filter(m => m !== null);
+        }
+
+        async function getGmailMessageDetails(messageId) {
+            try {
+                const url = `https://www.googleapis.com/gmail/v1/users/me/messages/${messageId}?format=metadata&metadataHeaders=Subject&metadataHeaders=From&metadataHeaders=Date`;
+                
+                const response = await fetch(url, {
+                    headers: { 'Authorization': `Bearer ${accessToken}` }
+                });
+                
+                const data = await response.json();
+                
+                const headers = {};
+                if (data.payload && data.payload.headers) {
+                    data.payload.headers.forEach(h => {
+                        headers[h.name.toLowerCase()] = h.value;
+                    });
+                }
+                
+                return {
+                    id: data.id,
+                    subject: headers['subject'] || '(No Subject)',
+                    from: headers['from'] || '',
+                    date: headers['date'] || '',
+                    snippet: data.snippet || ''
+                };
+            } catch (e) {
+                return null;
+            }
+        }
+
+        // ============================================
+        // RESULTS DISPLAY
+        // ============================================
+        
+        function displayResults(data) {
+            const container = document.getElementById('resultsContainer');
+            const list = document.getElementById('resultsList');
+            const count = document.getElementById('resultsCount');
+            const hint = document.getElementById('searchHint');
+
+            if (!data.results || data.results.length === 0) {
+                count.textContent = 'No results found';
+                list.innerHTML = '<p style="text-align: center; color: var(--text-muted); padding: 40px;">No matching files or emails found. Try a different search term.</p>';
+                container.classList.add('visible');
+                hint.classList.add('hidden');
+                return;
+            }
+
+            count.textContent = `${data.results.length} result${data.results.length === 1 ? '' : 's'}`;
+            
+            list.innerHTML = data.results.map(result => {
+                const icon = getFileIcon(result.type);
+                const date = result.modified ? new Date(result.modified).toLocaleDateString() : '';
+                
+                return `
+                    <a href="${result.url}" target="_blank" class="result-item">
+                        <div class="result-header">
+                            <span class="result-icon">${icon}</span>
+                            <span class="result-source ${result.source}">${result.source}</span>
+                        </div>
+                        <div class="result-title">${escapeHtml(result.name)}</div>
+                        ${result.snippet ? `<div class="result-snippet">${escapeHtml(result.snippet)}</div>` : ''}
+                        <div class="result-meta">
+                            ${result.from ? `<span>From: ${escapeHtml(result.from.split('<')[0].trim())}</span>` : ''}
+                            ${date ? `<span>${date}</span>` : ''}
+                        </div>
+                    </a>
+                `;
+            }).join('');
+
+            container.classList.add('visible');
+            hint.classList.add('hidden');
+        }
+
+        function clearResults() {
+            document.getElementById('resultsContainer').classList.remove('visible');
+            document.getElementById('resultsList').innerHTML = '';
+            document.getElementById('searchHint').classList.remove('hidden');
+        }
+
+        function getFileIcon(mimeType) {
+            if (!mimeType) return '📎';
+            if (mimeType === 'email') return '✉️';
+            if (mimeType.includes('document') || mimeType.includes('word')) return '📄';
+            if (mimeType.includes('spreadsheet') || mimeType.includes('excel')) return '📊';
+            if (mimeType.includes('presentation') || mimeType.includes('powerpoint')) return '📽️';
+            if (mimeType.includes('pdf')) return '📕';
+            if (mimeType.includes('image')) return '🖼️';
+            if (mimeType.includes('video')) return '🎬';
+            if (mimeType.includes('audio')) return '🎵';
+            if (mimeType.includes('folder')) return '📁';
+            return '📎';
+        }
+
+        // ============================================
+        // WAITLIST
+        // ============================================
+        
+        async function submitWaitlist(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('waitlistEmail').value.trim();
+            
+            if (!email) return;
+
+            try {
+                // If backend is configured, use it
+                if (CONFIG.BACKEND_URL && CONFIG.BACKEND_URL !== 'YOUR_APPS_SCRIPT_URL_HERE') {
+                    await fetch(CONFIG.BACKEND_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            action: 'waitlist',
+                            email: email
+                        })
+                    });
+                }
+                
+                // Show success
+                document.getElementById('waitlistForm').classList.add('hidden');
+                document.getElementById('waitlistSuccess').classList.add('visible');
+                showToast('You\'re on the list!', 'success');
+                
+            } catch (error) {
+                // Still show success (email captured client-side intent)
+                document.getElementById('waitlistForm').classList.add('hidden');
+                document.getElementById('waitlistSuccess').classList.add('visible');
+            }
+        }
+
+        // ============================================
+        // UI HELPERS
+        // ============================================
+        
+        function showLoading(show) {
+            document.getElementById('loadingState').classList.toggle('visible', show);
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+            
+            toastMessage.textContent = message;
+            toast.className = `toast ${type} visible`;
+            
+            setTimeout(() => {
+                toast.classList.remove('visible');
+            }, 3000);
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
 
         // Smooth scroll for anchor links
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
