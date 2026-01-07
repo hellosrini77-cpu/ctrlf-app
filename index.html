@@ -1356,27 +1356,45 @@
             });
         }
 
+        let searchVersion = 0;
+
         async function performSearch(query) {
             if (!accessToken) {
                 showToast('Please sign in to search', 'error');
                 return;
             }
 
+            // Increment version to cancel any pending searches
+            const thisSearch = ++searchVersion;
+            
             showLoading(true);
             clearResults();
 
             try {
-                const results = await searchWithAPI(query, selectedSources);
-                displayResults(results);
+                const currentSources = [...selectedSources]; // Snapshot current filters
+                console.log('Searching with sources:', currentSources);
+                const results = await searchWithAPI(query, currentSources);
+                
+                // Only display if this is still the current search
+                if (thisSearch === searchVersion) {
+                    displayResults(results);
+                } else {
+                    console.log('Ignoring stale search results');
+                }
             } catch (error) {
                 console.error('Search error:', error);
-                showToast('Search failed. Please try again.', 'error');
+                if (thisSearch === searchVersion) {
+                    showToast('Search failed. Please try again.', 'error');
+                }
             } finally {
-                showLoading(false);
+                if (thisSearch === searchVersion) {
+                    showLoading(false);
+                }
             }
         }
 
         async function searchWithAPI(query, sources) {
+            console.log('searchWithAPI called with sources:', sources);
             const results = {
                 query: query,
                 results: [],
@@ -1385,6 +1403,7 @@
 
             // Search Drive (direct API - no CORS issues)
             if (sources.includes('drive')) {
+                console.log('Searching Drive...');
                 try {
                     const driveResults = await searchDriveDirect(query);
                     driveResults.forEach(file => {
